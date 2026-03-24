@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DIDIB - L'INTÉGRALE</title>
+    <link rel="manifest" href="manifest.json">
+    <style>
+        :root { --gold: #f39c12; --dark: #000; --grey: #1a1a1a; }
+        body { background: var(--dark); color: white; font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; margin: 0; display: flex; flex-direction: column; height: 100vh; overflow: hidden; }
+        .player { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 20px; }
+        .album-art { width: 280px; height: 280px; background: var(--grey); border-radius: 15px; box-shadow: 0 10px 40px rgba(0,0,0,0.8); border: 1px solid #333; transition: transform 0.3s; }
+        .info { text-align: center; margin-top: 25px; }
+        .info h1 { margin: 0; font-size: 1.8rem; color: var(--gold); text-transform: uppercase; letter-spacing: 2px; }
+        .info p { margin: 5px 0; color: #888; font-size: 0.9rem; }
+        .lyrics { height: 60px; margin: 20px 0; text-align: center; font-weight: bold; font-size: 1.2rem; color: #fff; padding: 0 10px; }
+        .progress-bar { width: 100%; height: 6px; background: #333; border-radius: 10px; margin: 20px 0; cursor: pointer; position: relative; }
+        #progress { height: 100%; background: var(--gold); border-radius: 10px; width: 0%; }
+        .controls { display: flex; align-items: center; gap: 40px; margin-bottom: 20px; }
+        .btn { background: none; border: none; color: white; font-size: 2.5rem; cursor: pointer; outline: none; }
+        #playBtn { font-size: 4rem; color: var(--gold); }
+        .footer { padding: 15px; background: var(--grey); text-align: center; font-size: 0.7rem; color: #555; }
+        .highlight { color: var(--gold); font-weight: bold; }
+    </style>
+</head>
+<body>
+    <div class="player">
+        <img src="cover.jpg" class="album-art" id="art">
+        <div class="info">
+            <h1 id="title">CHARGEMENT...</h1>
+            <p id="album">DISCOGRAPHIE COMPLÈTE</p>
+        </div>
+        <div id="lyricBox" class="lyrics">...</div>
+        <div class="progress-bar" onclick="seek(event)">
+            <div id="progress"></div>
+        </div>
+        <div class="controls">
+            <button class="btn" onclick="prev()">⏮</button>
+            <button class="btn" id="playBtn" onclick="toggle()">▶</button>
+            <button class="btn" onclick="next()">⏭</button>
+        </div>
+    </div>
+    <div class="footer">
+        DÉDICACE SPÉCIALE : <span class="highlight">LE ZRANOTHINIEL</span> & TEAM SHAMA<br>
+        QUALITÉ STUDIO - TOUS LES SONS - SANS CONNEXION
+    </div>
+    <script src="brain.js"></script>
+    <script>
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('sw.js');
+        }
+    </script>
+</body>
+</html>
