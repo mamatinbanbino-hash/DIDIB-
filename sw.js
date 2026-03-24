@@ -1,29 +1,12 @@
-const CACHE_NAME = 'didib-v1';
-const ASSETS = [
-    './',
-    './index.html',
-    './brain.js',
-    './cover.jpg'
-];
-
-self.addEventListener('install', (e) => {
-    e.waitUntil(
-        caches.open(CACHE_NAME).then(cache => cache.addAll(ASSETS))
-    );
+const CACHE_NAME = 'didib-total-v1';
+self.addEventListener('install', e => {
+    e.waitUntil(caches.open(CACHE_NAME).then(cache => cache.addAll(['./', './index.html', './brain.js'])));
 });
 
-self.addEventListener('fetch', (e) => {
-    e.respondWith(
-        caches.match(e.request).then(res => {
-            return res || fetch(e.request).then(response => {
-                return caches.open(CACHE_NAME).then(cache => {
-                    // On met en cache chaque nouveau son écouté pour le hors-connexion
-                    if (e.request.url.includes('.mp3')) {
-                        cache.put(e.request, response.clone());
-                    }
-                    return response;
-                });
-            });
-        })
-    );
+self.addEventListener('fetch', e => {
+    e.respondWith(caches.match(e.request).then(res => res || fetch(e.request).then(response => {
+        let rc = response.clone();
+        caches.open(CACHE_NAME).then(cache => cache.put(e.request, rc));
+        return response;
+    })));
 });
