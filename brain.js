@@ -3,21 +3,26 @@ let currentIdx = 0;
 let isPlaying = false;
 let filteredSongs = [];
 
-// --- BASE DE DONNÉES : AJOUTE TOUS TES SONS ICI ---
+// --- TA VRAIE DISCOGRAPHIE ICI ---
+// Ajoute CHAQUE son que tu as dans ton dossier "musique"
 const discography = [
     { titre: "En Haut", album: "History", img: "pochettes/history.jpg", file: "musique/enhaut.mp3" },
-    { titre: "Tala", album: "Mojo Trone", img: "pochettes/mojotron.jpg", file: "musique/tala.mp3" },
-    { titre: "Azalakapinhou", album: "Classique", img: "pochettes/classic.jpg", file: "musique/classic.mp3" },
-    { titre: "Prouver", album: "History", img: "pochettes/history.jpg", file: "musique/prouver.mp3" }
-    // Ajoute les autres sons ici...
+    { titre: "Tala", album: "Mojo Trone", img: "pochettes/tala.mp3", file: "musique/tala.mp3" },
+    { titre: "Azalakapinhou", album: "Classic", img: "pochettes/classic.jpg", file: "musique/classic.mp3" },
+    { titre: "Prouver", album: "History", img: "pochettes/history.jpg", file: "musique/prouver.mp3" },
+    { titre: "Shama", album: "Mojo Trone", img: "pochettes/shama.jpg", file: "musique/shama.mp3" },
+    // CONTINUE LA LISTE ICI POUR TES 300 SONS...
 ];
 
 filteredSongs = [...discography];
 const container = document.getElementById('container');
 
-// Génère la liste visuelle
 function genererListe(songs) {
     container.innerHTML = "";
+    if (songs.length === 0) {
+        container.innerHTML = "<p style='text-align:center;color:#444;'>Aucun son trouvé</p>";
+        return;
+    }
     songs.forEach((son, i) => {
         const div = document.createElement('div');
         div.className = "song-card";
@@ -33,7 +38,6 @@ function genererListe(songs) {
     });
 }
 
-// Fonction de recherche
 function filtrer() {
     const val = document.getElementById('search').value.toLowerCase();
     filteredSongs = discography.filter(s => 
@@ -42,18 +46,23 @@ function filtrer() {
     genererListe(filteredSongs);
 }
 
-// Lancement d'un morceau
 function lancerSon(i, list) {
     currentIdx = i;
     const s = list[i];
+    
+    // Mise à jour visuelle
     document.getElementById('now-playing').innerText = `LECTURE : ${s.titre.toUpperCase()}`;
+    
+    // Chargement du fichier
     player.src = s.file;
-    player.play();
-    isPlaying = true;
-    document.getElementById('pBtn').innerText = "⏸";
+    player.play().then(() => {
+        isPlaying = true;
+        document.getElementById('pBtn').innerText = "⏸";
+    }).catch(err => {
+        alert("Erreur : Le fichier " + s.file + " est introuvable dans ton dossier musique/");
+    });
 }
 
-// Play / Pause
 function playPause() {
     if (!player.src) return;
     if (isPlaying) {
@@ -76,7 +85,6 @@ function prev() {
     lancerSon(currentIdx, filteredSongs);
 }
 
-// Barre de progression
 player.ontimeupdate = () => {
     if (player.duration) {
         const p = (player.currentTime / player.duration) * 100;
@@ -84,15 +92,11 @@ player.ontimeupdate = () => {
     }
 };
 
-// Clic sur la barre pour avancer/reculer
 document.getElementById('p-cont').onclick = (e) => {
     const rect = e.currentTarget.getBoundingClientRect();
     const x = e.clientX - rect.left;
     player.currentTime = (x / rect.width) * player.duration;
 };
 
-// Lecture automatique du suivant
 player.onended = () => next();
-
-// Au chargement
 window.onload = () => genererListe(discography);
