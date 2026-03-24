@@ -2,60 +2,65 @@ const audio = new Audio();
 let isPlaying = false;
 let currentIdx = 0;
 
-// BASE DE DONNÉES DES SONS (À COMPLÉTER ICI)
-const playlist = [
-    { title: "En Haut", album: "History", file: "audio/enhaut.mp3", lyrics: [{t:0, m:"Didi B..."}, {t:5, m:"On est en haut!"}] },
-    { title: "Tala", album: "Mojo Trone", file: "audio/tala.mp3", lyrics: [{t:2, m:"Tala tala..."}, {t:8, m:"Regarde le succès"}] },
-    { title: "Azalakapinhou", album: "Ancien", file: "audio/ancien1.mp3", lyrics: [{t:1, m:"Le commencement"}] }
-    // Ajoute tes 100+ morceaux ici sur le même format
+// BASE DE DONNÉES DISCOGRAPHIE (Mets tes liens d'images et de sons ici)
+const discography = [
+    { title: "En Haut", album: "History", file: "audio/enhaut.mp3", img: "img/history.jpg" },
+    { title: "Tala", album: "Mojo Trone", file: "audio/tala.mp3", img: "img/mojotron.jpg" },
+    { title: "Azalakapinhou", album: "Classic", file: "audio/ancien.mp3", img: "img/classic.jpg" }
+    // Ajoute TOUS tes sons sur ce modèle
 ];
 
-function loadTrack(idx) {
-    const track = playlist[idx];
-    document.getElementById('title').innerText = track.title;
-    document.getElementById('album').innerText = track.album;
+const listContainer = document.getElementById('list');
+
+// Génération automatique de la liste visuelle
+function buildList() {
+    discography.forEach((track, index) => {
+        const item = document.createElement('div');
+        item.className = 'track-item';
+        item.onclick = () => playTrack(index);
+        item.innerHTML = `
+            <img src="${track.img}" class="track-img">
+            <div class="track-details">
+                <h4>${track.title}</h4>
+                <p>${track.album}</p>
+            </div>
+        `;
+        listContainer.appendChild(item);
+    });
+}
+
+function playTrack(idx) {
+    currentIdx = idx;
+    const track = discography[idx];
+    document.getElementById('current-title').innerText = track.title;
+    document.getElementById('current-art').src = track.img;
     audio.src = track.file;
-    audio.load();
+    audio.play();
+    isPlaying = true;
+    document.getElementById('playBtn').innerText = "⏸";
 }
 
 function toggle() {
-    if (isPlaying) {
-        audio.pause();
-        document.getElementById('playBtn').innerText = "▶";
-    } else {
-        audio.play();
-        document.getElementById('playBtn').innerText = "⏸";
-    }
+    if (isPlaying) { audio.pause(); document.getElementById('playBtn').innerText = "▶"; }
+    else { audio.play(); document.getElementById('playBtn').innerText = "⏸"; }
     isPlaying = !isPlaying;
+}
+
+function next() {
+    currentIdx = (currentIdx + 1) % discography.length;
+    playTrack(currentIdx);
+}
+
+function prev() {
+    currentIdx = (currentIdx - 1 + discography.length) % discography.length;
+    playTrack(currentIdx);
 }
 
 audio.ontimeupdate = () => {
     const prog = (audio.currentTime / audio.duration) * 100;
     document.getElementById('progress').style.width = prog + "%";
-    
-    // Synchro paroles
-    const track = playlist[currentIdx];
-    const line = track.lyrics.find((l, i) => audio.currentTime >= l.t && (!track.lyrics[i+1] || audio.currentTime < track.lyrics[i+1].t));
-    if (line) document.getElementById('lyricBox').innerText = line.m;
 };
 
-function next() {
-    currentIdx = (currentIdx + 1) % playlist.length;
-    loadTrack(currentIdx);
-    if(isPlaying) audio.play();
-}
-
-function prev() {
-    currentIdx = (currentIdx - 1 + playlist.length) % playlist.length;
-    loadTrack(currentIdx);
-    if(isPlaying) audio.play();
-}
-
-function seek(e) {
-    const rect = e.target.getBoundingClientRect();
-    const x = e.clientX - rect.left;
-    audio.currentTime = (x / rect.width) * audio.duration;
-}
-
 audio.onended = () => next();
-window.onload = () => loadTrack(0);
+
+window.onload = buildList;
